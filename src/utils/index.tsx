@@ -53,3 +53,22 @@ export const serialize = (data: { [x: string]: string | number }) => {
   })
   return params.join('&')
 }
+
+// 防抖函数
+export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let timer: NodeJS.Timeout | null = null
+
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>): void {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const context = this
+
+    if (timer) {
+      clearTimeout(timer)
+    }
+
+    timer = setTimeout(() => {
+      fn.apply(context, args)
+      timer = null
+    }, delay)
+  }
+}

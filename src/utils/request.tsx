@@ -6,10 +6,19 @@ axios.defaults.baseURL = import.meta.env.VITE_APP_BASEURLAPI
 axios.defaults.timeout = 50000
 axios.defaults.validateStatus = status => status >= 200 && status < 500
 
+console.log('axios.defaults.baseURL', axios.defaults.baseURL)
+
+type AxiosResponsePromise = AxiosResponse & {
+  code?: number
+  msg?: string
+  message?: string
+  data?: any
+}
+
 axios.interceptors.request.use(
   config => {
     const isToken = (config.headers || {}).isToken === false
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem('authToken')
     if (token && !isToken) {
       config.headers['Authorization'] = 'Bearer ' + token
     }
@@ -25,11 +34,11 @@ axios.interceptors.request.use(
 )
 
 axios.interceptors.response.use(
-  (res: AxiosResponse) => {
+  (res: AxiosResponsePromise) => {
     const { status, data } = res
     const Message = data.msg || data?.message
     if (status === 401) {
-      localStorage.removeItem('access_token')
+      localStorage.removeItem('authToken')
       message.error('登录过期，请重新登录')
       window.location.href = '/login'
       return Promise.reject(new Error('Unauthorized'))

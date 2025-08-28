@@ -5,6 +5,10 @@ import { randomNum } from '@/utils'
 // import { randomNum, encryption } from '@/utils'
 // import { login } from '@/api/login'
 import styles from './index.module.less'
+import useAuthStore from '@/store/authStore'
+import { setAuthToken } from '@/utils/auth'
+// import request from '@/utils/request'
+import { useRouter } from '@/context/RouterContext'
 
 interface LoginFormValues {
   username: string
@@ -17,18 +21,29 @@ interface LoginFormValues {
 const Login: React.FC = () => {
   const [code, setCode] = useState<string>('')
   const [, setRandomStr] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
   const navigate = useNavigate()
-  const onFinish = (values: LoginFormValues) => {
+
+  const { updateRoutes } = useRouter()
+
+  const login = useAuthStore(state => state.login)
+  // 从 URL 中获取重定向路径
+  const from = new URLSearchParams(window.location.search).get('redirect') || '/'
+  const onFinish = async (values: LoginFormValues) => {
+    setLoading(true)
     const { username, password } = values
     if (username === 'andy.xia' && password === 'Xj@1234') {
       message.success(`登录成功，欢迎 ${values.username}`)
       // 这里可以添加实际的登录逻辑
-      localStorage.setItem('access_token', '59ec5801-b873-4566-b4ef-e3d026a1c542')
-      // 跳转到仪表盘,  在事件或副作用中触发跳转
-      navigate('/', { replace: true })
+      const token = '2762870e-d09b-49a5-872d-3f2a2d941ca4' // 模拟的 token
+      login(token, { username, password })
+      setAuthToken(token)
+      await updateRoutes()
+      navigate(from, { replace: true })
     } else {
       message.error('用户名或密码错误')
     }
+    setLoading(false)
     // LoginByUsername({ ...values, randomStr })
   }
 
@@ -80,7 +95,7 @@ const Login: React.FC = () => {
           <Checkbox>记住我</Checkbox>
         </Form.Item>
         <Form.Item style={{ marginTop: 24 }}>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" loading={loading} htmlType="submit" block>
             登录
           </Button>
         </Form.Item>
