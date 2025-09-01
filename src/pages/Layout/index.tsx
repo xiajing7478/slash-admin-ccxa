@@ -2,32 +2,36 @@ import { Suspense, type ComponentType } from 'react'
 import { Outlet, Link } from 'react-router-dom'
 import { useRouterContext } from '@/context/use-router-context'
 import * as Icons from '@ant-design/icons'
+import Loading from '@/components/Loading'
+import { NProgressWrapper } from '@/components/Loading/withNProgress'
 
 const Layout = () => {
   const { menus } = useRouterContext()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-      <ul>
-        {menus.map((menu: any, index: number) => {
-          // 动态获取图标组件
-          const IconComponent = Icons[menu.icon as keyof typeof Icons] as ComponentType
+    <NProgressWrapper>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+        <ul>
+          {menus.map((menu: any, index: number) => {
+            // 动态获取图标组件
+            const IconComponent = Icons[menu.icon as keyof typeof Icons] as ComponentType
 
-          return (
-            <li key={index}>
-              <Link to={menu.route} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {IconComponent && <IconComponent />}
-                {menu.name}
-              </Link>
-            </li>
-          )
-        })}
-      </ul>
+            return (
+              <li key={index}>
+                <Link to={menu.route} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {IconComponent && <IconComponent />}
+                  {menu.name}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <Outlet /> {/* 路由出口 */}
-      </Suspense>
-    </div>
+        <Suspense fallback={<Loading />}>
+          <Outlet /> {/* 路由出口 */}
+        </Suspense>
+      </div>
+    </NProgressWrapper>
   )
 }
 
