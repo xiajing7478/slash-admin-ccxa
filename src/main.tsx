@@ -1,14 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// import { RouterProvider } from 'react-router-dom'
-// import router from '@/config/router'
+import 'nprogress/nprogress.css'
 import 'antd/dist/reset.css'
 import App from './App'
+import './check-update'
+import './index.css' // 引入全局样式
+// import '@/i18n'
 
 createRoot(document.getElementById('root')!).render(
-  // <StrictMode>
-  //   <RouterProvider router={router} />
-  // </StrictMode>,
   <StrictMode>
     <App />
   </StrictMode>,

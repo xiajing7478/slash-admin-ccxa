@@ -1,0 +1,22 @@
+{
+  "app": {
+    "title": "我的应用程序",
+    "description": "这是一个多语言应用程序"
+  },
+  "nav": {
+    "home": "首页",
+    "about": "关于",
+    "contact": "联系我们"
+  },
+  "user": {
+    "greeting": "你好，{{name}}！",
+    "profile": "个人资料",
+    "settings": "设置"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑"
+  }
+}

@@ -1,110 +1,70 @@
-import { lazy, useEffect, useState } from 'react'
-import dayjs from 'dayjs'
-// import { ConfigProvider, Spin } from 'antd'
-// import { useGlobalStore } from '@/store/index'
-// import zhCN from 'antd/locale/zh_CN'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import { getUserMenu } from '@/service'
-// import { RouterContextProvider } from './router-contxt'
-import { RouterContextProvider } from '@/context/router-provider'
-import 'antd/dist/reset.css'
+import { useEffect, useState } from 'react'
+import { App as AntdApp, ConfigProvider, type ThemeConfig } from 'antd'
+import { generateDarkTheme } from '@/theme/dark'
+import { generateLightTheme } from '@/theme/light'
+import useGlobalStore from '@/store/global'
+import useSettingStore from '@/store/setting'
 
-dayjs.locale('zh-cn')
+import zhCN from 'antd/locale/zh_CN'
+import enUS from 'antd/locale/en_US'
+import { i18n } from '@/i18n'
+import { configResponsive } from 'ahooks'
+import NProgress from 'nprogress'
 
-// const App: React.FC = () => {
-//   const { primaryColor } = useGlobalStore()
-//   return (
-//     <ConfigProvider
-//       locale={zhCN}
-//       theme={{
-//         token: {
-//           colorPrimary: primaryColor,
-//         },
-//       }}
-//     >
-//       <Suspense fallback={<Spin size="large" className="app-loading" />}>
-//         <BasicLayout />
-//       </Suspense>
-//     </ConfigProvider>
-//   )
-// }
+import RootRouterProvider from '@/router/provider'
 
-// 动态导入组件
-const modules: Record<string, () => Promise<{ default: React.ComponentType }>> = import.meta.glob('./pages/*/index.tsx')
-console.log('modules...', modules)
-
-// 创建组件映射
-const componentMap: Record<string, React.LazyExoticComponent<React.ComponentType<any>>> = {}
-Object.keys(modules).forEach(path => {
-  const componentName = path.replace('./pages/', '').replace('/index.tsx', '')
-  // .replace(/^./, str => str.toUpperCase())
-  componentMap[componentName] = lazy(modules[path])
+configResponsive({
+  // pc: 992,
+  // mobile: 576,
+  // tablet: 768,
+  md: 768,
+  lg: 1024,
 })
 
-console.log('componentMap...', componentMap)
+NProgress.configure({
+  minimum: 0.3,
+  easing: 'ease',
+  speed: 800,
+  showSpinner: false,
+  trickleSpeed: 200,
+  parent: '#root',
+})
 
 const App: React.FC = () => {
-  const [menus, setMenus] = useState<any[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [router, setRouter] = useState<any>(null)
+  const { darkMode, lang } = useGlobalStore()
+  const { primaryColor } = useSettingStore()
+  console.log('App.tsx...', darkMode, lang, primaryColor)
 
-  useEffect(() => {
-    const initRouter = async () => {
-      try {
-        const adminMenus = (await getUserMenu()) as any[]
-        setMenus(adminMenus)
+  const [theme, setTheme] = useState<ThemeConfig>(() => {
+    return darkMode ? generateDarkTheme('') : generateLightTheme('')
+  })
 
-        // 创建新的路由配置
-        const routes = adminMenus
-          .map((item: any) => {
-            const LazyComponent = componentMap[item.component]
-            if (!LazyComponent) {
-              console.warn(`Component not found for path: ${item.component}`)
-              return null
-            }
-            return {
-              path: item.route,
-              icon: item.icon,
-              element: <LazyComponent />,
-            }
-          })
-          .filter(Boolean)
-
-        console.log('routes...', routes)
-
-        // 创建路由器实例
-        const newRouter = createBrowserRouter([
-          {
-            path: '/',
-            Component: lazy(() => import('@/pages/Layout/index')),
-            children: routes as any[],
-          },
-          {
-            path: '*',
-            element: <Navigate to="/dashboard" />,
-          },
-        ])
-        setRouter(newRouter)
-      } catch (error) {
-        console.error('Failed to initialize router:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    initRouter()
-  }, [])
-
-  if (loading) {
-    return <div>loading...</div>
+  const applyTheme = (darkMode: boolean, primaryColor: string) => {
+    const theme = darkMode ? generateDarkTheme(primaryColor) : generateLightTheme(primaryColor)
+    const themeMode = darkMode ? 'dark' : 'light'
+    document.body.classList.remove(darkMode ? 'light' : 'dark')
+    document.body.classList.add(themeMode)
+    document.body.style.backgroundColor = theme.token?.colorBgLayout || ''
+    setTheme(theme)
+    setTimeout(() => {
+      document.body.style.transition = 'all 0.5s ease-in-out'
+    }, 300)
   }
 
+  useEffect(() => {
+    applyTheme(darkMode, primaryColor)
+  }, [darkMode, primaryColor])
+
+  useEffect(() => {
+    i18n.changeLanguage(lang)
+  }, [lang])
+
   return (
-    <div className="App">
-      <RouterContextProvider values={{ menus }}>
-        <RouterProvider router={router} />
-      </RouterContextProvider>
-    </div>
+    <ConfigProvider theme={theme} locale={lang === 'zh' ? zhCN : enUS} componentSize="middle">
+      <AntdApp>
+        <RootRouterProvider />
+      </AntdApp>
+    </ConfigProvider>
   )
 }
 
