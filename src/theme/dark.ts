@@ -8,6 +8,7 @@ export const generateDarkTheme = (primaryColor: string): ThemeConfig => {
     cssVar: true,
     token: {
       colorPrimary: primaryColor,
+      // controlHeight: 40,
       colorBgContainer: 'rgb(26, 34, 63)',
       colorBgElevated: 'rgb(26, 34, 63)',
       colorBorder: 'rgba(189, 200, 240, 0.157)',

@@ -14,9 +14,9 @@ import NProgress from 'nprogress'
 import RootRouterProvider from '@/router/provider'
 
 configResponsive({
-  // pc: 992,
-  // mobile: 576,
-  // tablet: 768,
+  pc: 992,
+  mobile: 576,
+  tablet: 768,
   md: 768,
   lg: 1024,
 })
@@ -33,7 +33,7 @@ NProgress.configure({
 const App: React.FC = () => {
   const { darkMode, lang } = useGlobalStore()
   const { primaryColor } = useSettingStore()
-  console.log('App.tsx...', darkMode, lang, primaryColor)
+  // console.log('App.tsx...', darkMode, lang, primaryColor)
 
   const [theme, setTheme] = useState<ThemeConfig>(() => {
     return darkMode ? generateDarkTheme('') : generateLightTheme('')

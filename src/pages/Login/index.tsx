@@ -1,79 +1,71 @@
 import React, { useEffect, useState } from 'react'
-import { Form, Input, Button, Checkbox, message, Row, Col } from 'antd'
+import { Form, Input, Button, Row, Col, Image, App } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { randomNum } from '@/utils'
-// import { randomNum, encryption } from '@/utils'
-// import { login } from '@/api/login'
+import { randomNum, encryption } from '@/utils'
 import styles from './index.module.less'
 import useAuthStore from '@/store/authStore'
 import { setAuthToken } from '@/utils/auth'
-// import request from '@/utils/request'
-import { useRouter } from '@/context/RouterContext'
+import { obtainUniqueCode, LoginByUsername } from '@/api/login'
 
 interface LoginFormValues {
   username: string
   password: string
-  remember: boolean
   code: string
   randomStr?: string
 }
 
 const Login: React.FC = () => {
   const [code, setCode] = useState<string>('')
-  const [, setRandomStr] = useState<string>('')
+  const [randomStr, setRandomStr] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const navigate = useNavigate()
 
-  const { updateRoutes } = useRouter()
+  const { message } = App.useApp()
 
-  const login = useAuthStore(state => state.login)
+  const { setToken } = useAuthStore()
   // 从 URL 中获取重定向路径
   const from = new URLSearchParams(window.location.search).get('redirect') || '/'
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true)
-    const { username, password } = values
-    if (username === 'andy.xia' && password === 'Xj@1234') {
-      message.success(`登录成功，欢迎 ${values.username}`)
-      // 这里可以添加实际的登录逻辑
-      const token = '2762870e-d09b-49a5-872d-3f2a2d941ca4' // 模拟的 token
-      login(token, { username, password })
-      setAuthToken(token)
-      await updateRoutes()
-      navigate(from, { replace: true })
-    } else {
-      message.error('用户名或密码错误')
+    const { username, password, code } = values
+    const { data } = await obtainUniqueCode()
+
+    const user = {
+      username,
+      password: encryption(data.substring(0, 10) + password + data.substring(10, data.length)),
+      code,
+      randomStr,
     }
-    setLoading(false)
-    // LoginByUsername({ ...values, randomStr })
+    try {
+      const { access_token, refresh_token }: any = await LoginByUsername(user)
+      setAuthToken(access_token)
+      setToken(access_token, refresh_token)
+      console.log('access_token....', access_token)
+      console.log('from....', from)
+      navigate(from, { replace: true })
+      return
+    } catch (error) {
+      message.error((error as any)?.message || '登录失败')
+      getCaptchCode()
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // const LoginByUsername = async (userInfo: LoginFormValues) => {
-  //   const user = encryption({
-  //     data: userInfo,
-  //     key: 'thanks,uluhcloud',
-  //     param: ['password'],
-  //   })
-  //   console.log('user...', user)
-  //   const res = await login(user)
-  //   console.log('res...', res)
-  // }
-
   useEffect(() => {
-    const prefix = import.meta.env.VITE_APP_BASEURLAPI
+    getCaptchCode()
+  }, [])
+
+  const getCaptchCode = () => {
     const randomCode = randomNum(4, true)
-    const result = `${prefix}/code?randomStr=${randomCode}`
+    const result = `${import.meta.env.VITE_APP_BASEURLAPI}/code?randomStr=${randomCode}`
     setRandomStr(randomCode)
     setCode(result)
-  }, [])
+  }
 
   return (
     <div className={styles.loginWrapper}>
-      <Form
-        name="login"
-        onFinish={onFinish}
-        className={styles.loginForm}
-        initialValues={{ remember: true, username: 'andy.xia', password: 'Xj@1234' }}
-      >
+      <Form size="large" name="login" onFinish={onFinish} className={styles.loginForm} initialValues={{ username: 'andy.xia', password: 'Xj@1234' }}>
         <h2 className={styles.loginTitle}>登录</h2>
         <Form.Item name="username" rules={[{ required: true, message: '请输入用户名!' }]}>
           <Input placeholder="用户名" />
@@ -83,19 +75,16 @@ const Login: React.FC = () => {
         </Form.Item>
         <Form.Item>
           <Row gutter={8}>
-            <Col span={12}>
-              <Form.Item name="code" noStyle rules={[{ required: true, message: 'Please input the captcha you got!' }]}>
+            <Col span={16}>
+              <Form.Item name="code" noStyle rules={[{ required: true, message: '请输入验证码' }]}>
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>{code && <img src={code} />}</Col>
+            <Col span={8}>{code && <Image preview={false} src={code} alt="code" onClick={getCaptchCode} />}</Col>
           </Row>
         </Form.Item>
-        <Form.Item name="remember" valuePropName="checked" noStyle>
-          <Checkbox>记住我</Checkbox>
-        </Form.Item>
-        <Form.Item style={{ marginTop: 24 }}>
-          <Button type="primary" loading={loading} htmlType="submit" block>
+        <Form.Item style={{ marginTop: 12 }}>
+          <Button size="large" type="primary" loading={loading} htmlType="submit" block>
             登录
           </Button>
         </Form.Item>

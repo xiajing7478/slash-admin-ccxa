@@ -5,7 +5,6 @@ import 'antd/dist/reset.css'
 import App from './App'
 import './check-update'
 import './index.css' // 引入全局样式
-// import '@/i18n'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

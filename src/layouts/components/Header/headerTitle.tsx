@@ -12,8 +12,14 @@ interface HeaderTitleProps {
 const HeaderTitle = ({ collapsed, setCollapsed }: HeaderTitleProps) => {
   return (
     <>
-      <div style={{ width: defaultSetting.slideWidth }} className="max-lg:hidden flex justify-between items-center">
-        <div className="flex items-center gap-[4px] text-[20px] px-[24px] pr-0">
+      <div
+        style={{ width: defaultSetting.slideWidth, display: 'flex', alignItems: 'center', paddingLeft: '24px', gap: '8px' }}
+        // className="max-lg:hidden flex justify-between items-center"
+      >
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+          // className="flex items-center gap-[4px] text-[20px] px-[24px] pr-0"
+        >
           <IconBuguang className="text-primary" />
           <h1 className="font-bold text-[22px]">{defaultSetting.title}</h1>
         </div>

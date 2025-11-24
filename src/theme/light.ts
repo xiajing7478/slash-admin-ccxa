@@ -7,6 +7,7 @@ export const generateLightTheme = (primaryColor: string): ThemeConfig => {
     token: {
       colorPrimary: primaryColor,
       colorLink: primaryColor,
+      // controlHeight: 40,
       colorBgLayout: 'rgb(248, 248, 248)',
       colorBgTextHover: tinycolor(primaryColor).setAlpha(0.09).toRgbString(),
       controlItemBgActive: tinycolor(primaryColor).setAlpha(0.2).toRgbString(),

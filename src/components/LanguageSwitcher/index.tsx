@@ -13,7 +13,7 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <Select defaultValue={i18n.language} style={{ width: 120 }} onChange={changeLanguage}>
       <Option value="en">English</Option>
-      <Option value="zh">中文</Option>
+      <Option value="zn">中文</Option>
     </Select>
   )
 }

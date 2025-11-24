@@ -20,7 +20,7 @@ const Content = () => {
         width: `calc(100vw - ${isPC ? (collapsed ? defaultSetting.collapsedSlideWidth : defaultSetting.slideWidth) : defaultSetting.mobileMargin * 2}px)`,
       }}
     >
-      <div className="m-0 rounded-md z-1 p-[0px]">
+      <div className="m-0 rounded-md z-1 p-[10px]">
         <Suspense fallback={<div>loading....</div>}>
           {showKeepAliveTab ? (
             <TabsLayout />

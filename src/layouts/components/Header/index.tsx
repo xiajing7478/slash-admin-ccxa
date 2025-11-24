@@ -11,8 +11,8 @@ const Header = () => {
 
   return (
     <div
-      style={{ height: defaultSetting.headerHeight, zIndex: 998 }}
-      className="flex basis-[48px] items-center px-0 gap-[16px] fixed top-0 right-0 left-0 bg-[var(--ant-color-bg-layout)]"
+      style={{ height: defaultSetting.headerHeight, zIndex: 1000, display: 'flex' }}
+      // className="flex basis-[48px] items-center px-0 gap-[16px] fixed top-0 right-0 left-0 bg-[var(--ant-color-bg-layout)]"
     >
       <HeaderTitle collapsed={collapsed} setCollapsed={setCollapsed} />
       <div className="flex items-center justify-between max-md:justify-end flex-1 pr-[24px]">
